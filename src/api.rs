@@ -22,7 +22,7 @@ use opencv::types;
 use opencv::Error;
 
 
-pub fn scan(file_path: String) -> Result<(), Error> {
+pub fn scan(file_path: String) -> Result<Vec<String>, Error> {
     let mut image = imgcodecs::imread(&file_path, -1).unwrap();
 
     let mut grey_image = core::Mat::default();
@@ -115,6 +115,8 @@ pub fn scan(file_path: String) -> Result<(), Error> {
         zero_offset,
     )?;
 
+    let files: Vec<String> = vec![];
+
     let mut i = 0;
     for x in cnts {
         let area = imgproc::contour_area(&x, false)?;
@@ -128,15 +130,12 @@ pub fn scan(file_path: String) -> Result<(), Error> {
 
             let temp_img = core::Mat::roi(&mut image, rect)?;
 
-            highgui::imshow("image!", &temp_img)?;
-            highgui::wait_key(0)?;
             imgcodecs::imwrite(&format!("{}{}.jpg", file_path, i), &temp_img, &vec![].into())?;
+
+            files.push(format!("{}{}.jpg", file_path, i));
+
             i+=1;
         }
     }
-
-    highgui::imshow("image!", &ctr_image)?;
-    highgui::wait_key(0)?;
-
-    Ok(())
+    Ok(files)
 }
